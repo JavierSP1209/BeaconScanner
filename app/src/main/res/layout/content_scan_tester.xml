@@ -14,7 +14,14 @@
   tools:showIn="@layout/activity_scan_tester">
 
   <TextView
+    android:id="@+id/lblStatus"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello World!"/>
+    android:text="@string/lbl_status"/>
+
+  <TextView
+    android:id="@+id/txtStatus"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_toEndOf="@id/lblStatus"/>
 </RelativeLayout>
