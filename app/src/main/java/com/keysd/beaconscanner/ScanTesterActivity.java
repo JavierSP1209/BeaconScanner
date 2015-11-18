@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.keysd.beaconscannerlib.BLeScanService;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +50,11 @@ public class ScanTesterActivity extends AppCompatActivity {
             .setUseHardwareBatchingIfSupported(false).build();
         List<ScanFilter> filters = new ArrayList<>();
 //        filters.add(new ScanFilter.Builder().setServiceUuid(mUuid).build());
-        scanner.startScan(null, settings, scanCallback);
-        txtStatus.setText("Scanning...");
+        //scanner.startScan(null, settings, scanCallback);
+
+        Intent serviceStart = new Intent(getApplicationContext(), BLeScanService.class);
+        startService(serviceStart);
+        txtStatus.setText("Starting Service...");
       }
     });
 
