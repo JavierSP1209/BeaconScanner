@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.keysd.beaconscannerlib.BLeScanService;
+import com.keysd.beaconscannerlib.utils.Constants;
+import com.keysd.beaconscannerlib.utils.ScanAlarmManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +54,7 @@ public class ScanTesterActivity extends AppCompatActivity {
 //        filters.add(new ScanFilter.Builder().setServiceUuid(mUuid).build());
         //scanner.startScan(null, settings, scanCallback);
 
-        Intent serviceStart = new Intent(getApplicationContext(), BLeScanService.class);
-        startService(serviceStart);
+        ScanAlarmManager.startScanAlarm(getApplicationContext());
         txtStatus.setText("Starting Service...");
       }
     });
@@ -157,9 +158,10 @@ public class ScanTesterActivity extends AppCompatActivity {
   };
 
   final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
   public static String bytesToHex(byte[] bytes) {
     char[] hexChars = new char[bytes.length * 2];
-    for ( int j = 0; j < bytes.length; j++ ) {
+    for (int j = 0; j < bytes.length; j++) {
       int v = bytes[j] & 0xFF;
       hexChars[j * 2] = hexArray[v >>> 4];
       hexChars[j * 2 + 1] = hexArray[v & 0x0F];

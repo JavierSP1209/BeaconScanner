@@ -26,7 +26,16 @@
 
     <service
       android:name="com.keysd.beaconscannerlib.BLeScanService"
-      android:exported="false"/>
+      android:exported="false"
+      android:process="com.keysd.beaconscanner.service"/>
+
+    <receiver
+      android:name="com.keysd.beaconscannerlib.receiver.BLeStartScanBroadcastReceiver"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="com.keysd.beaconscannerlib.START_BLE_SCAN"/>
+      </intent-filter>
+    </receiver>
   </application>
 
 </manifest>

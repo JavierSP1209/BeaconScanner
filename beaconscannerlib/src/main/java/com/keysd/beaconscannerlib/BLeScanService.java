@@ -6,15 +6,15 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.keysd.beaconscannerlib.utils.Constants;
+import com.keysd.beaconscannerlib.utils.ScanAlarmManager;
 
 public class BLeScanService extends IntentService {
 
-  private static final String TAG = "BLeScanService";
   private Handler restartServiceHandler;
   private Runnable serviceStarter = new Runnable() {
     @Override
     public void run() {
-      Log.d(TAG, "Runnable...");
+      Log.d(Constants.TAG, "Runnable...");
       restartService();
     }
   };
@@ -28,7 +28,7 @@ public class BLeScanService extends IntentService {
   }
 
   public BLeScanService() {
-    super(TAG);
+    super(Constants.TAG);
   }
 
   @Override
@@ -39,21 +39,27 @@ public class BLeScanService extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    Log.d(TAG, "onHandleIntent");
+    Log.d(Constants.TAG, "onHandleIntent");
 
     try {
-      Thread.sleep(5000);
+      Thread.sleep(Constants.DEFAULT_BLE_SCAN_PERIOD_MS);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
 
-    restartServiceHandler.postDelayed(serviceStarter, Constants.DEFAULT_BLE_SCAN_INTERVAL_MS);
+    restartService();
+    //restartServiceHandler.postDelayed(serviceStarter, Constants.DEFAULT_BLE_SCAN_INTERVAL_MS);
 
-    Log.d(TAG, "finish");
+    Log.d(Constants.TAG, "finish");
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    Log.d(Constants.TAG, "Destroyed");
   }
 
   private void restartService() {
-    Intent serviceRestart = new Intent(getApplicationContext(), BLeScanService.class);
-    startService(serviceRestart);
+    ScanAlarmManager.startScanAlarm(getApplicationContext());
   }
 }

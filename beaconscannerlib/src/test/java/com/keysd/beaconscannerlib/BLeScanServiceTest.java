@@ -3,6 +3,8 @@ package com.keysd.beaconscannerlib;
 import android.content.Intent;
 import android.os.Handler;
 
+import com.keysd.beaconscannerlib.utils.Constants;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,13 +14,17 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLog;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -41,17 +47,23 @@ public class BLeScanServiceTest {
   }
 
   @Test
-  public void onHandleIntent_shouldStartServiceAfterDelayedTimeHasPassed() {
+  public void onHandleIntent_shouldSendRestartBroadcastAfterDelayedTimeHasPassed() {
 
     scanService.onHandleIntent(serviceIntent);
 
     ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
 
-    Intent serviceIntent = ShadowApplication.getInstance().peekNextStartedService();
-    Assert.assertNotNull("Service not restarted", serviceIntent);
-    Assert.assertEquals("Expected the BLeScanService service to be started",
-        BLeScanService.class.getCanonicalName(),
-        serviceIntent.getComponent().getClassName());
+    List<Intent> broadcastIntents = shadowOf(RuntimeEnvironment.application).getBroadcastIntents();
+
+    Assert.assertThat("Broadcast not sent", broadcastIntents.size(), is(equalTo(1)));
+    Assert.assertThat("Incorrect broadcast", broadcastIntents.get((0)).getAction(),
+        is(equalTo(Constants.ACTION_START_BLE_SCAN)));
+
+//    Intent serviceIntent = ShadowApplication.getInstance().peekNextStartedService();
+//    Assert.assertNotNull("Service not restarted", serviceIntent);
+//    Assert.assertEquals("Expected the BLeScanService service to be started",
+//        BLeScanService.class.getCanonicalName(),
+//        serviceIntent.getComponent().getClassName());
   }
 
   @Test
