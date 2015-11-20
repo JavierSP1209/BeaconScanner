@@ -10,7 +10,9 @@ public class Constants {
   /**
    * Default scan period, the actual scanning time for each scan
    */
-  public static final long DEFAULT_BLE_SCAN_PERIOD_MS = 2000;
+  public static final long DEFAULT_BLE_SCAN_PERIOD_MS = 5000;
+
+  public static final long SCAN_RESULTS_DELAY = 3000;
 
   public static final String TAG = "BLeScanService";
 

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.keysd.beaconscannerlib.BLeScanService;
 import com.keysd.beaconscannerlib.receiver.BLeStartScanBroadcastReceiver;
 
 public class ScanAlarmManager {

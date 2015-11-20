@@ -46,14 +46,6 @@ public class ScanTesterActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-        ScanSettings settings = new ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).setReportDelay(1000)
-            .setUseHardwareBatchingIfSupported(false).build();
-        List<ScanFilter> filters = new ArrayList<>();
-//        filters.add(new ScanFilter.Builder().setServiceUuid(mUuid).build());
-        //scanner.startScan(null, settings, scanCallback);
-
         ScanAlarmManager.startScanAlarm(getApplicationContext());
         txtStatus.setText("Starting Service...");
       }
@@ -118,54 +110,5 @@ public class ScanTesterActivity extends AppCompatActivity {
     }
 
     return super.onOptionsItemSelected(item);
-  }
-
-  private ScanCallback scanCallback = new ScanCallback() {
-    @Override
-    public void onScanResult(int callbackType, ScanResult result) {
-      super.onScanResult(callbackType, result);
-      Log.d(TAG, "onScanResult - " + callbackType + " - " + result);
-      txtStatus.setText("Scan Finish...");
-    }
-
-    @Override
-    public void onBatchScanResults(List<ScanResult> results) {
-      super.onBatchScanResults(results);
-      Log.d(TAG, "onBatchScanResults - " + results.size());
-      txtStatus.setText("Batch scan Results...");
-      for (ScanResult result : results) {
-        Log.d(TAG, "Result: " + result);
-        ScanRecord scanRecord = result.getScanRecord();
-        if (scanRecord != null) {
-          SparseArray<byte[]> manufacturerSpecificData = scanRecord.getManufacturerSpecificData();
-          for (int i = 0; i < manufacturerSpecificData.size(); i++) {
-            int key = manufacturerSpecificData.keyAt(i);
-            // get the object by the key.
-            byte[] obj = manufacturerSpecificData.get(key);
-            Log.d(TAG, "ManufacturerData: " + bytesToHex(obj));
-          }
-        }
-      }
-
-    }
-
-    @Override
-    public void onScanFailed(int errorCode) {
-      super.onScanFailed(errorCode);
-      Log.d(TAG, "onScanFailed - " + errorCode);
-      txtStatus.setText("Scan Failed...");
-    }
-  };
-
-  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-  public static String bytesToHex(byte[] bytes) {
-    char[] hexChars = new char[bytes.length * 2];
-    for (int j = 0; j < bytes.length; j++) {
-      int v = bytes[j] & 0xFF;
-      hexChars[j * 2] = hexArray[v >>> 4];
-      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-    }
-    return new String(hexChars);
   }
 }
