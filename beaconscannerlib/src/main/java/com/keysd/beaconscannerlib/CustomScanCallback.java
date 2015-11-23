@@ -21,18 +21,11 @@ public class CustomScanCallback extends ScanCallback {
   }
 
   @Override
-  public void onScanResult(int callbackType, ScanResult result) {
-    super.onScanResult(callbackType, result);
-    Log.d(Constants.TAG, "onScanResult - " + callbackType + " - " + result);
-  }
-
-  @Override
   public void onBatchScanResults(List<ScanResult> results) {
     super.onBatchScanResults(results);
     for (ScanResult result : results) {
       ScanRecord scanRecord = result.getScanRecord();
       if (scanRecord != null) {
-
         byte[] beaconContent = scanRecord.getManufacturerSpecificData(76);
         Intent beaconIntent = new Intent(BLeScanService.ACTION_BEACON_FOUND);
         beaconIntent.putExtra(BLeScanService.EXTRA_BEACON_CONTENT, beaconContent);
@@ -40,11 +33,5 @@ public class CustomScanCallback extends ScanCallback {
       }
     }
 
-  }
-
-  @Override
-  public void onScanFailed(int errorCode) {
-    super.onScanFailed(errorCode);
-    Log.d(Constants.TAG, "onScanFailed - " + errorCode);
   }
 }

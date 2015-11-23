@@ -98,6 +98,8 @@ public class BLeScanServiceTest {
     ScanFilter actualFilter = actualFilters.get(0);
     assertThat(actualFilter.getManufacturerDataMask(), is(filter.getManufacturerDataMask()));
     assertThat(actualFilter.getManufacturerData(), is(filter.getManufacturerData()));
+
+
   }
 
   @Test
