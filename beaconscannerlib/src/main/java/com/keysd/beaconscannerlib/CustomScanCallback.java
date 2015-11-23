@@ -1,10 +1,10 @@
 package com.keysd.beaconscannerlib;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.keysd.beaconscannerlib.utils.Constants;
-import com.keysd.beaconscannerlib.utils.ServiceUtils;
 
 import java.util.List;
 
@@ -13,6 +13,13 @@ import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class CustomScanCallback extends ScanCallback {
+
+  Context context;
+
+  public CustomScanCallback(Context context) {
+    this.context = context;
+  }
+
   @Override
   public void onScanResult(int callbackType, ScanResult result) {
     super.onScanResult(callbackType, result);
@@ -23,16 +30,13 @@ public class CustomScanCallback extends ScanCallback {
   public void onBatchScanResults(List<ScanResult> results) {
     super.onBatchScanResults(results);
     for (ScanResult result : results) {
-      Log.d(Constants.TAG, "FoundFiltered device!");
       ScanRecord scanRecord = result.getScanRecord();
       if (scanRecord != null) {
-        SparseArray<byte[]> manufacturerSpecificData = scanRecord.getManufacturerSpecificData();
-        for (int i = 0; i < manufacturerSpecificData.size(); i++) {
-          int key = manufacturerSpecificData.keyAt(i);
-          // get the object by the key.
-          byte[] obj = manufacturerSpecificData.get(key);
-          Log.d(Constants.TAG, "Content: " + ServiceUtils.bytesToHex(obj));
-        }
+
+        byte[] beaconContent = scanRecord.getManufacturerSpecificData(76);
+        Intent beaconIntent = new Intent(BLeScanService.ACTION_BEACON_FOUND);
+        beaconIntent.putExtra(BLeScanService.EXTRA_BEACON_CONTENT, beaconContent);
+        context.sendBroadcast(beaconIntent);
       }
     }
 

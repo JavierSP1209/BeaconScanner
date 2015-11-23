@@ -22,6 +22,13 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
  */
 public class BLeScanService extends IntentService {
 
+  public static final String ACTION_BEACON_FOUND = "com.keysd.beaconscannerlib.BEACON_FOUND";
+  public static final String ACTION_SCAN_FAILED = "com.keysd.beaconscannerlib.SCAN_FAILED";
+  public static final String ACTION_SCAN_STARTED = "com.keysd.beaconscannerlib.SCAN_STARTED";
+  public static final String ACTION_SCAN_ENDED = "com.keysd.beaconscannerlib.SCAN_ENDED";
+
+  public static final String EXTRA_BEACON_CONTENT = "com.keysd.beaconscannerlib.beacon_content";
+
   private BluetoothAdapterProvider bluetoothAdapterProvider;
   private Handler restartServiceHandler;
   private BluetoothLeScannerCompat scanner;
@@ -68,7 +75,7 @@ public class BLeScanService extends IntentService {
     restartServiceHandler = new Handler();
     bluetoothAdapterProvider = new BluetoothAdapterProvider();
     scanner = BluetoothLeScannerCompat.getScanner();
-    scanCallback = new CustomScanCallback();
+    scanCallback = new CustomScanCallback(this);
   }
 
   @Override

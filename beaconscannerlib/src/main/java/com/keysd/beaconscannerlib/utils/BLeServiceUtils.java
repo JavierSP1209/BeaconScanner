@@ -1,6 +1,6 @@
 package com.keysd.beaconscannerlib.utils;
 
-public class ServiceUtils {
+public class BLeServiceUtils {
 
   final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 

@@ -1,33 +1,26 @@
 package com.keysd.beaconscanner;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.keysd.beaconscannerlib.BLeScanService;
-import com.keysd.beaconscannerlib.utils.Constants;
+import com.keysd.beaconscannerlib.utils.BLeServiceUtils;
 import com.keysd.beaconscannerlib.utils.ScanAlarmManager;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
-import no.nordicsemi.android.support.v18.scanner.ScanCallback;
-import no.nordicsemi.android.support.v18.scanner.ScanFilter;
-import no.nordicsemi.android.support.v18.scanner.ScanRecord;
-import no.nordicsemi.android.support.v18.scanner.ScanResult;
-import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
@@ -53,6 +46,10 @@ public class ScanTesterActivity extends AppCompatActivity {
 
     txtStatus = (TextView) findViewById(R.id.txtStatus);
     txtStatus.setText("Waiting...");
+
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(BLeScanService.ACTION_BEACON_FOUND);
+    registerReceiver(bReceiver, intentFilter);
   }
 
   @Override
@@ -111,4 +108,14 @@ public class ScanTesterActivity extends AppCompatActivity {
 
     return super.onOptionsItemSelected(item);
   }
+
+  private BroadcastReceiver bReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      if (intent.getAction().equals(BLeScanService.ACTION_BEACON_FOUND)) {
+        byte[] beaconContent = intent.getByteArrayExtra(BLeScanService.EXTRA_BEACON_CONTENT);
+        Log.d(TAG, "BeaconFound: " + BLeServiceUtils.bytesToHex(beaconContent));
+      }
+    }
+  };
 }
