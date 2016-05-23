@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.keysd.beaconscannerlib.provider.BluetoothAdapterProvider;
@@ -18,92 +19,112 @@ import no.nordicsemi.android.support.v18.scanner.ScanFilter;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 /**
- * BLe cycled scanner, this service will be restarted when the scan is finished unless BLe is not enabled
+ * BLe cycled scanner, this service will be restarted when the scan is finished unless BLe is not
+ * enabled
  */
 public class BLeScanService extends IntentService {
 
-  public static final String ACTION_BEACON_FOUND = "com.keysd.beaconscannerlib.BEACON_FOUND";
-  public static final String ACTION_SCAN_FAILED = "com.keysd.beaconscannerlib.SCAN_FAILED";
-  public static final String ACTION_SCAN_STARTED = "com.keysd.beaconscannerlib.SCAN_STARTED";
-  public static final String ACTION_SCAN_ENDED = "com.keysd.beaconscannerlib.SCAN_ENDED";
+    private static final byte[] MASK = new byte[]{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
+    public static final String ACTION_BEACON_FOUND = "com.keysd.beaconscannerlib.BEACON_FOUND";
+    public static final String ACTION_SCAN_START = "com.keysd.beaconscannerlib.SCAN_START";
+    public static final String ACTION_SCAN_STOP = "com.keysd.beaconscannerlib.SCAN_STOP";
 
-  public static final String EXTRA_BEACON_CONTENT = "com.keysd.beaconscannerlib.beacon_content";
+    public static final String EXTRA_BEACON_CONTENT = "com.keysd.beaconscannerlib.BEACON_CONTENT";
+    public static final String EXTRA_SCAN_PERIOD = "com.keysd.beaconscannerlib.SCAN_PERIOD";
+    public static final String EXTRA_SCAN_INTERVAL = "com.keysd.beaconscannerlib.SCAN_INTERVAL";
+    public static final String EXTRA_FILTER_UUID = "com.keysd.beaconscannerlib.FILTER_UUID";
 
-  private BluetoothAdapterProvider bluetoothAdapterProvider;
-  private Handler restartServiceHandler;
-  private BluetoothLeScannerCompat scanner;
-  private CustomScanCallback scanCallback;
+    private BluetoothAdapterProvider bluetoothAdapterProvider;
+    private Handler stopScanHandler;
+    private BluetoothLeScannerCompat scanner;
+    private CustomScanCallback scanCallback;
+    private byte[] filterData;
+    private long scanInterval;
 
-  byte[] filterData = {0, 0, -71, 64, 127, 48, -11, -8, 70, 110, -81, -7, 37, 85, 107, 87, -2, 109, 0, 0, 0, 0, 0};
-  byte[] mask = new byte[]{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
+    private Runnable serviceStarter = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(Constants.TAG, "Stopping scanner...");
+            scanner.stopScan(scanCallback);
+            sendStateLocalBroadcast(ACTION_SCAN_STOP);
+        }
+    };
+    private long scanPeriod;
 
-  private Runnable serviceStarter = new Runnable() {
+    void setStopScanHandler(Handler stopScanHandler) {
+        this.stopScanHandler = stopScanHandler;
+    }
+
+    void setBluetoothAdapterProvider(BluetoothAdapterProvider bluetoothAdapterProvider) {
+        this.bluetoothAdapterProvider = bluetoothAdapterProvider;
+    }
+
+    void setScanner(BluetoothLeScannerCompat scanner) {
+        this.scanner = scanner;
+    }
+
+    public BLeScanService() {
+        super(Constants.TAG);
+    }
+
     @Override
-    public void run() {
-      Log.d(Constants.TAG, "Stopping scanner...");
-      scanner.stopScan(scanCallback);
+    public void onCreate() {
+        super.onCreate();
+        stopScanHandler = new Handler();
+        bluetoothAdapterProvider = new BluetoothAdapterProvider();
+        scanner = BluetoothLeScannerCompat.getScanner();
+        scanCallback = new CustomScanCallback(this);
     }
-  };
 
-  public Handler getRestartServiceHandler() {
-    return restartServiceHandler;
-  }
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Log.d(Constants.TAG, "onHandleIntent");
 
-  void setRestartServiceHandler(Handler restartServiceHandler) {
-    this.restartServiceHandler = restartServiceHandler;
-  }
+        filterData = intent.getByteArrayExtra(EXTRA_FILTER_UUID);
+        scanPeriod = intent.getLongExtra(EXTRA_SCAN_PERIOD,
+                Constants.DEFAULT_BLE_SCAN_PERIOD_MS);
+        scanInterval = intent.getLongExtra(EXTRA_SCAN_INTERVAL,
+                Constants.DEFAULT_BLE_SCAN_INTERVAL_MS);
 
-  void setBluetoothAdapterProvider(BluetoothAdapterProvider bluetoothAdapterProvider) {
-    this.bluetoothAdapterProvider = bluetoothAdapterProvider;
-  }
-
-  void setScanner(BluetoothLeScannerCompat scanner) {
-    this.scanner = scanner;
-  }
-
-  void setScanCallback(CustomScanCallback scanCallback) {
-    this.scanCallback = scanCallback;
-  }
-
-  public BLeScanService() {
-    super(Constants.TAG);
-  }
-
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    restartServiceHandler = new Handler();
-    bluetoothAdapterProvider = new BluetoothAdapterProvider();
-    scanner = BluetoothLeScannerCompat.getScanner();
-    scanCallback = new CustomScanCallback(this);
-  }
-
-  @Override
-  protected void onHandleIntent(Intent intent) {
-    Log.d(Constants.TAG, "onHandleIntent");
-
-    if (isBLeEnabled()) {
-      startScan();
-      restartService();
-      restartServiceHandler.postDelayed(serviceStarter, Constants.DEFAULT_BLE_SCAN_PERIOD_MS);
+        if (isBLeEnabled()) {
+            startScan();
+            restartService();
+            stopScanHandler.postDelayed(serviceStarter, scanPeriod);
+        }
     }
-  }
 
-  private void startScan() {
-    ScanSettings settings = new ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_BALANCED).setReportDelay(Constants.SCAN_RESULTS_DELAY)
-        .setUseHardwareBatchingIfSupported(false).build();
-    List<ScanFilter> filters = new ArrayList<>();
-    filters.add(new ScanFilter.Builder().setManufacturerData(76, filterData, mask).build());
-    scanner.startScan(filters, settings, scanCallback);
-  }
+    private void startScan() {
+        ScanSettings settings = new ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_BALANCED).setReportDelay(
+                        Constants.SCAN_RESULTS_DELAY)
+                .setUseHardwareBatchingIfSupported(false).build();
+        List<ScanFilter> filters = new ArrayList<>();
+        ScanFilter scanFilter = null;
+        if (filterData != null) {
+            scanFilter = new ScanFilter.Builder().setManufacturerData(76, filterData,
+                    MASK).build();
+        }
+        filters.add(scanFilter);
+        scanner.startScan(filters, settings, scanCallback);
+        sendStateLocalBroadcast(ACTION_SCAN_START);
+    }
 
-  private void restartService() {
-    ScanAlarmManager.startScanAlarm(getApplicationContext());
-  }
+    private void restartService() {
+        ScanParameters scanParameters = new ScanParameters.Builder()
+                .setScanInterval(scanInterval)
+                .setScanPeriod(scanPeriod)
+                .setFilterUUIDData(filterData)
+                .build();
+        ScanAlarmManager.startScanAlarm(getApplicationContext(), scanParameters);
+    }
 
-  private boolean isBLeEnabled() {
-    BluetoothAdapter adapter = bluetoothAdapterProvider.getInstance();
-    return adapter != null && adapter.isEnabled();
-  }
+    private boolean isBLeEnabled() {
+        BluetoothAdapter adapter = bluetoothAdapterProvider.getInstance();
+        return adapter != null && adapter.isEnabled();
+    }
+
+    private void sendStateLocalBroadcast(String action) {
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
+                new Intent(action));
+    }
 }

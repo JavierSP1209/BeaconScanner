@@ -55,6 +55,6 @@ public class CustomScanCallbackTest {
     Intent actualIntent = intentArgumentCaptor.getValue();
     assertThat(actualIntent.getAction(), is(equalTo(BLeScanService.ACTION_BEACON_FOUND)));
     assertThat(actualIntent.getByteArrayExtra(BLeScanService.EXTRA_BEACON_CONTENT),
-        is(equalTo(beaconContent)));
+            is(beaconContent));
   }
 }

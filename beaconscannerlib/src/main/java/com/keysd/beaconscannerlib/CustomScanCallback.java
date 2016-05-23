@@ -14,7 +14,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class CustomScanCallback extends ScanCallback {
 
-  Context context;
+  private Context context;
 
   public CustomScanCallback(Context context) {
     this.context = context;
@@ -32,6 +32,5 @@ public class CustomScanCallback extends ScanCallback {
         context.sendBroadcast(beaconIntent);
       }
     }
-
   }
 }
