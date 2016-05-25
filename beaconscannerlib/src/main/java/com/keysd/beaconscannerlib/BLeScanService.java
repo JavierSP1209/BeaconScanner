@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.keysd.beaconscannerlib.provider.BluetoothAdapterProvider;
 import com.keysd.beaconscannerlib.utils.Constants;
@@ -17,6 +16,8 @@ import java.util.List;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanFilter;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
+
+import static com.keysd.beaconscannerlib.utils.Constants.TAG;
 
 /**
  * BLe cycled scanner, this service will be restarted when the scan is finished unless BLe is not
@@ -44,7 +45,6 @@ public class BLeScanService extends IntentService {
     private Runnable serviceStarter = new Runnable() {
         @Override
         public void run() {
-            Log.d(Constants.TAG, "Stopping scanner...");
             scanner.stopScan(scanCallback);
             sendStateLocalBroadcast(ACTION_SCAN_STOP);
         }
@@ -64,7 +64,7 @@ public class BLeScanService extends IntentService {
     }
 
     public BLeScanService() {
-        super(Constants.TAG);
+        super(TAG);
     }
 
     @Override
@@ -78,14 +78,11 @@ public class BLeScanService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(Constants.TAG, "onHandleIntent");
-
         filterData = intent.getByteArrayExtra(EXTRA_FILTER_UUID);
         scanPeriod = intent.getLongExtra(EXTRA_SCAN_PERIOD,
                 Constants.DEFAULT_BLE_SCAN_PERIOD_MS);
         scanInterval = intent.getLongExtra(EXTRA_SCAN_INTERVAL,
                 Constants.DEFAULT_BLE_SCAN_INTERVAL_MS);
-
         if (isBLeEnabled()) {
             startScan();
             restartService();
@@ -99,12 +96,11 @@ public class BLeScanService extends IntentService {
                         Constants.SCAN_RESULTS_DELAY)
                 .setUseHardwareBatchingIfSupported(false).build();
         List<ScanFilter> filters = new ArrayList<>();
-        ScanFilter scanFilter = null;
+        ScanFilter.Builder builder = new ScanFilter.Builder();
         if (filterData != null) {
-            scanFilter = new ScanFilter.Builder().setManufacturerData(76, filterData,
-                    MASK).build();
+            builder.setManufacturerData(89, filterData, MASK);
         }
-        filters.add(scanFilter);
+        filters.add(builder.build());
         scanner.startScan(filters, settings, scanCallback);
         sendStateLocalBroadcast(ACTION_SCAN_START);
     }
