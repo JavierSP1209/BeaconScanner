@@ -1,0 +1,3 @@
+[submodule "beacon-scanner-library"]
+	path = beacon-scanner-library
+	url = git@github.com:JavierSP1209/beacon-scanner-library.git
