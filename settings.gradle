@@ -1,1 +1,1 @@
-include ':app', ':beaconscannerlib'
+include ':app', ':beacon-scanner-library'
