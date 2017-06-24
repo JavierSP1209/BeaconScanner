@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,9 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.keysd.beaconscannerlib.BLeScanService;
-import com.keysd.beaconscannerlib.utils.BLeServiceUtils;
-import com.keysd.beaconscannerlib.utils.ScanAlarmManager;
+import com.psh.beaconscannerlib.BLeScanService;
+import com.psh.beaconscannerlib.ScanParameters;
+import com.psh.beaconscannerlib.utils.BLeServiceUtils;
+import com.psh.beaconscannerlib.utils.ScanAlarmManager;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
@@ -39,7 +39,8 @@ public class ScanTesterActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        ScanAlarmManager.startScanAlarm(getApplicationContext());
+        ScanParameters parameters = new ScanParameters.Builder().setScanInterval(500).setScanPeriod(500).build();
+        ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
         txtStatus.setText("Starting Service...");
       }
     });
