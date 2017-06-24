@@ -18,7 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlarmManager;
@@ -38,11 +38,11 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class BLeScanServiceTest {
 
@@ -80,8 +80,8 @@ public class BLeScanServiceTest {
                 Context.ALARM_SERVICE);
         shadowAlarmManager = shadowOf(alarmManager);
 
-        stub(mockBluetoothAdapterProvider.getInstance()).toReturn(mockBluetoothAdapter);
-        stub(mockBluetoothAdapter.isEnabled()).toReturn(true);
+        when(mockBluetoothAdapterProvider.getInstance()).thenReturn(mockBluetoothAdapter);
+        when(mockBluetoothAdapter.isEnabled()).thenReturn(true);
         broadcastSent = false;
 
         scanService = new BLeScanServiceMock();
@@ -162,7 +162,7 @@ public class BLeScanServiceTest {
 
     @Test
     public void onHandleIntent_whenBLeIsNotEnabled_shouldNotScanNorRestartService() {
-        stub(mockBluetoothAdapter.isEnabled()).toReturn(false);
+        when(mockBluetoothAdapter.isEnabled()).thenReturn(false);
         scanService.onHandleIntent(serviceIntent);
 
         ShadowAlarmManager.ScheduledAlarm alarm = shadowAlarmManager.getNextScheduledAlarm();

@@ -10,34 +10,34 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowApplication;
 
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class BLeStartScanBroadcastReceiverTest {
 
-  BLeStartScanBroadcastReceiver subject;
-  Context applicationContext;
-  ShadowApplication shadowApplication;
+    BLeStartScanBroadcastReceiver subject;
+    Context applicationContext;
+    ShadowApplication shadowApplication;
 
-  @Before
-  public void setUp() throws Exception {
-    subject = new BLeStartScanBroadcastReceiver();
-    shadowApplication = ShadowApplication.getInstance();
-    applicationContext = shadowApplication.getApplicationContext();
-  }
+    @Before
+    public void setUp() throws Exception {
+        subject = new BLeStartScanBroadcastReceiver();
+        shadowApplication = ShadowApplication.getInstance();
+        applicationContext = shadowApplication.getApplicationContext();
+    }
 
-  @Test
-  public void onReceive_shouldStartService() throws Exception {
+    @Test
+    public void onReceive_shouldStartService() throws Exception {
 
-    subject.onReceive(applicationContext, null);
+        subject.onReceive(applicationContext, null);
 
-    Intent serviceIntent = shadowApplication.peekNextStartedService();
-    Assert.assertNotNull("Service not restarted", serviceIntent);
-    Assert.assertEquals("Expected the BLeScanService service to be invoked",
-        BLeScanService.class.getCanonicalName(),
-        serviceIntent.getComponent().getClassName());
-  }
+        Intent serviceIntent = shadowApplication.peekNextStartedService();
+        Assert.assertNotNull("Service not restarted", serviceIntent);
+        Assert.assertEquals("Expected the BLeScanService service to be invoked",
+                BLeScanService.class.getCanonicalName(),
+                serviceIntent.getComponent().getClassName());
+    }
 }
