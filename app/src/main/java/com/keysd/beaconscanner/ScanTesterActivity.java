@@ -17,10 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.psh.beaconscannerlib.BLeScanService;
-import com.psh.beaconscannerlib.ScanParameters;
-import com.psh.beaconscannerlib.utils.BLeServiceUtils;
-import com.psh.beaconscannerlib.utils.ScanAlarmManager;
+import com.prettysmarthomes.beaconscannerlib.BLeScanService;
+import com.prettysmarthomes.beaconscannerlib.ScanParameters;
+import com.prettysmarthomes.beaconscannerlib.BLeScanServiceUtils;
+import com.prettysmarthomes.beaconscannerlib.ScanAlarmManager;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
@@ -88,34 +88,12 @@ public class ScanTesterActivity extends AppCompatActivity {
 
   }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_scan_tester, menu);
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
-    }
-
-    return super.onOptionsItemSelected(item);
-  }
-
   private BroadcastReceiver bReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
       if (intent.getAction().equals(BLeScanService.ACTION_BEACON_FOUND)) {
         byte[] beaconContent = intent.getByteArrayExtra(BLeScanService.EXTRA_BEACON_CONTENT);
-        Log.d(TAG, "BeaconFound: " + BLeServiceUtils.bytesToHex(beaconContent));
+        Log.d(TAG, "BeaconFound: " + BLeScanServiceUtils.bytesToHex(beaconContent));
       }
     }
   };
