@@ -12,15 +12,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.prettysmarthomes.beaconscannerlib.BLeScanService;
-import com.prettysmarthomes.beaconscannerlib.ScanParameters;
 import com.prettysmarthomes.beaconscannerlib.BLeScanServiceUtils;
-import com.prettysmarthomes.beaconscannerlib.ScanAlarmManager;
+import com.prettysmarthomes.beaconscannerlib.ScanParameters;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
@@ -40,7 +37,7 @@ public class ScanTesterActivity extends AppCompatActivity {
       @Override
       public void onClick(View view) {
         ScanParameters parameters = new ScanParameters.Builder().setScanInterval(500).setScanPeriod(500).build();
-        ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
+        //ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
         txtStatus.setText("Starting Service...");
       }
     });
@@ -59,6 +56,12 @@ public class ScanTesterActivity extends AppCompatActivity {
     Log.d(TAG, "Entering onResume");
     validateBleSupport();
 
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    unregisterReceiver(bReceiver);
   }
 
   private void validateBleSupport() {
