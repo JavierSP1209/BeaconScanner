@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.keysd.beaconscanner"
-  xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.keysd.beaconscanner">
 
   <uses-permission android:name="android.permission.BLUETOOTH" />
   <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -24,12 +24,12 @@
     </activity>
 
     <service
-      android:name="com.psh.beaconscannerlib.BLeScanService"
+      android:name="com.prettysmarthomes.beaconscannerlib.BLeScanService"
       android:exported="false"
       android:process=":service" />
 
     <receiver
-      android:name="com.psh.beaconscannerlib.receiver.BLeStartScanBroadcastReceiver"
+      android:name="com.prettysmarthomes.beaconscannerlib.BLeStartScanBroadcastReceiver"
       android:exported="false">
       <intent-filter>
         <action android:name="com.keysd.beaconscannerlib.START_BLE_SCAN" />

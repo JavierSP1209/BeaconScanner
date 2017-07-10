@@ -17,13 +17,17 @@ import android.widget.TextView;
 
 import com.prettysmarthomes.beaconscannerlib.BLeScanService;
 import com.prettysmarthomes.beaconscannerlib.BLeScanServiceUtils;
+import com.prettysmarthomes.beaconscannerlib.ScanAlarmManager;
 import com.prettysmarthomes.beaconscannerlib.ScanParameters;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
   public static final String TAG = "BEACON_SCANNER_TESTER";
 
+  private FloatingActionButton fab;
   private TextView txtStatus;
+
+  boolean isRunning;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +36,21 @@ public class ScanTesterActivity extends AppCompatActivity {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+    isRunning = false;
+    fab = (FloatingActionButton) findViewById(R.id.fab);
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         ScanParameters parameters = new ScanParameters.Builder().setScanInterval(500).setScanPeriod(500).build();
-        //ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
         txtStatus.setText("Starting Service...");
+        isRunning = !isRunning;
+        if (isRunning) {
+          fab.setImageResource(R.drawable.ic_stop);
+          ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
+        } else {
+          fab.setImageResource(R.drawable.ic_play);
+          ScanAlarmManager.cancelScanAlarm(getApplicationContext());
+        }
       }
     });
 
