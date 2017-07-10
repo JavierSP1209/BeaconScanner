@@ -41,7 +41,7 @@ public class ScanTesterActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        ScanParameters parameters = new ScanParameters.Builder().setScanInterval(500).setScanPeriod(500).build();
+        ScanParameters parameters = new ScanParameters.Builder().setScanInterval(1000).setScanPeriod(2000).build();
         txtStatus.setText("Starting Service...");
         isRunning = !isRunning;
         if (isRunning) {
