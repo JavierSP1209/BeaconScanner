@@ -45,6 +45,7 @@ public class ScanTesterActivity extends AppCompatActivity {
         ScanParameters parameters = new ScanParameters.Builder()
             .setScanInterval(1000)
             .setScanPeriod(2000)
+            .setManufacturerId(ScanParameters.ManufacturerID.I_BEACON)
             .build();
         txtStatus.setText("Starting Service...");
         isRunning = !isRunning;
