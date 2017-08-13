@@ -15,15 +15,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.prettysmarthomes.beaconscannerlib.BLeScanService;
-import com.prettysmarthomes.beaconscannerlib.BLeScanServiceUtils;
-import com.prettysmarthomes.beaconscannerlib.ScanAlarmManager;
-import com.prettysmarthomes.beaconscannerlib.ScanParameters;
+import com.prettysmarthomes.beaconscanner.BLeScanService;
+import com.prettysmarthomes.beaconscanner.BLeScanServiceManager;
+import com.prettysmarthomes.beaconscanner.BLeScanServiceUtils;
+import com.prettysmarthomes.beaconscanner.ScanParameters;
 
 public class ScanTesterActivity extends AppCompatActivity {
 
   public static final String TAG = "BEACON_SCANNER_TESTER";
 
+  BLeScanServiceManager bleScanServiceManager = new BLeScanServiceManager();
   private FloatingActionButton fab;
   private TextView txtStatus;
 
@@ -41,15 +42,18 @@ public class ScanTesterActivity extends AppCompatActivity {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        ScanParameters parameters = new ScanParameters.Builder().setScanInterval(1000).setScanPeriod(2000).build();
+        ScanParameters parameters = new ScanParameters.Builder()
+            .setScanInterval(1000)
+            .setScanPeriod(2000)
+            .build();
         txtStatus.setText("Starting Service...");
         isRunning = !isRunning;
         if (isRunning) {
           fab.setImageResource(R.drawable.ic_stop);
-          ScanAlarmManager.startScanAlarm(getApplicationContext(), parameters);
+          bleScanServiceManager.startScanService(getApplicationContext(), parameters);
         } else {
           fab.setImageResource(R.drawable.ic_play);
-          ScanAlarmManager.cancelScanAlarm(getApplicationContext());
+          bleScanServiceManager.cancelScanService(getApplicationContext());
         }
       }
     });
@@ -58,8 +62,8 @@ public class ScanTesterActivity extends AppCompatActivity {
     txtStatus.setText("Waiting...");
 
     IntentFilter intentFilter = new IntentFilter();
-    intentFilter.addAction(BLeScanService.ACTION_BEACON_FOUND);
-    registerReceiver(bReceiver, intentFilter);
+    intentFilter.addAction(BLeScanService.ACTION_BEACON_FOUNDED);
+    registerReceiver(receiver, intentFilter);
   }
 
   @Override
@@ -73,7 +77,7 @@ public class ScanTesterActivity extends AppCompatActivity {
   @Override
   protected void onStop() {
     super.onStop();
-    unregisterReceiver(bReceiver);
+    unregisterReceiver(receiver);
   }
 
   private void validateBleSupport() {
@@ -90,10 +94,10 @@ public class ScanTesterActivity extends AppCompatActivity {
       * We need to enforce that Bluetooth is first enabled, and take the
       * user to settings to enable it if they have not done so.
       */
-      BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
+      BluetoothAdapter bluetoothAdapter = BluetoothAdapter
           .getDefaultAdapter();
 
-      if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+      if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
         Log.d(TAG, "onResume: Bluetooth is disabled");
         //Bluetooth is disabled, request enabling it
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -103,10 +107,10 @@ public class ScanTesterActivity extends AppCompatActivity {
 
   }
 
-  private BroadcastReceiver bReceiver = new BroadcastReceiver() {
+  private BroadcastReceiver receiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
-      if (intent.getAction().equals(BLeScanService.ACTION_BEACON_FOUND)) {
+      if (intent.getAction().equals(BLeScanService.ACTION_BEACON_FOUNDED)) {
         byte[] beaconContent = intent.getByteArrayExtra(BLeScanService.EXTRA_BEACON_CONTENT);
         Log.d(TAG, "BeaconFound: " + BLeScanServiceUtils.bytesToHex(beaconContent));
       }
