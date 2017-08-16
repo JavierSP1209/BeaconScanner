@@ -23,4 +23,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_toEndOf="@id/lblStatus" />
+
+  <android.support.v7.widget.SwitchCompat
+    android:id="@+id/swtFindYourPhone"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/txtStatus"
+    android:checked="false"
+    android:text="Find Your Phone: " />
 </RelativeLayout>

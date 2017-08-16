@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.prettysmarthomes.beaconscanner.BLeScanService;
@@ -23,10 +25,13 @@ import com.prettysmarthomes.beaconscanner.ScanParameters;
 public class ScanTesterActivity extends AppCompatActivity {
 
   public static final String TAG = "BEACON_SCANNER_TESTER";
+  public static byte[] PSHOMES_BEACON_UUID = new byte[]{0, 0, -1, -2, 45, 18, 30, 75, 15, -92, -103, 78, -50, -75, 49, -12, 5, 69, 0, 0, 0, 0, 0};
+  public static byte[] PSHOMES_FYP_BEACON_UUID = new byte[]{0, 0, -1, -2, 45, 18, 30, 75, 15, -92, -103, 78, -50, -75, 49, -12, 5, 70, 0, 0, 0, 0, 0};
 
   BLeScanServiceManager bleScanServiceManager = new BLeScanServiceManager();
   private FloatingActionButton fab;
   private TextView txtStatus;
+  private byte[] filter = PSHOMES_BEACON_UUID;
 
   boolean isRunning;
 
@@ -46,6 +51,7 @@ public class ScanTesterActivity extends AppCompatActivity {
             .setScanInterval(1000)
             .setScanPeriod(2000)
             .setManufacturerId(ScanParameters.ManufacturerID.I_BEACON)
+            .setFilterUUIDData(filter)
             .build();
         txtStatus.setText("Starting Service...");
         isRunning = !isRunning;
@@ -56,6 +62,21 @@ public class ScanTesterActivity extends AppCompatActivity {
           fab.setImageResource(R.drawable.ic_play);
           bleScanServiceManager.cancelScanService(getApplicationContext());
         }
+      }
+    });
+
+    SwitchCompat swtFindYourPhone = (SwitchCompat) findViewById(R.id.swtFindYourPhone);
+    swtFindYourPhone.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+          filter = PSHOMES_FYP_BEACON_UUID;
+        } else {
+          filter = PSHOMES_BEACON_UUID;
+        }
+        fab.setImageResource(R.drawable.ic_play);
+        bleScanServiceManager.cancelScanService(getApplicationContext());
+        isRunning = false;
       }
     });
 
